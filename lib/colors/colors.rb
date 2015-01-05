@@ -1,0 +1,3 @@
+module Colors
+
+end
