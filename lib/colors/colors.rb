@@ -1,5 +1,5 @@
+## Consider using colorist or some color gem
 module Colors
-  ## Consider using colorist or some color gem
   class Color
     attr_reader :red, :green, :blue
 
@@ -15,13 +15,6 @@ module Colors
           color = 128
         end
       end
-    end
-
-    # Creates array of bytes that represent acceptable grb on the LED strip
-    # yes - grb.
-    def convert_to_led_msg
-      normalize()
-      [@green, @red, @blue]
     end
   end
 end

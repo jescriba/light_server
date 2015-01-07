@@ -1,6 +1,7 @@
 ## Handles the SPI and Row Status
 #
 require 'pi_piper'
+require_relative 'light.rb'
 
 module Lights
   class RowHandler
