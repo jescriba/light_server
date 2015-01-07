@@ -2,36 +2,23 @@ require 'json'
 require 'pi_piper'
 
 module Lights
-  NUM_OF_LEDS = 32
-
   class Server
     include PiPiper
 
     def initialize
-      # Launching the Server flashes the LEDs
-      PiPiper::Spi.begin do
-        on = Array.new(3 * NUM_OF_LEDS, 0xff)  
-        on.push(0, 0, 0)
-        off = Array.new(3 * NUM_OF_LEDS, 0x80)
-        off.push(0, 0, 0)
-        write(on)
-        sleep(0.5)
-        write(off)
-      end
+      @row_handler = RowHandler.new
     end
 
     # Process JSON requests from web server
     def listen(data)
-
+      ## TODO: Check if needs to be updated by comparing to command history
+      data_table = JSON.parse(data)
+      update(data_table) # For now just calling update regardless
     end
 
-    # Receives requests and then checks if the 
-    # lights actually need to be updated by referencing
-    # current status
+    # Updates SPI status
     def update(instructions)
-      # Updates SPI status
-      RowHandler.check_for_update(instructions)
+      @row_handler.update(instructions)
     end
-
   end
 end

@@ -15,10 +15,3 @@ post '/request' do
   data = req.to_json
   $lights_server.listen(data)
 end
-
-
-# client code
-# while true 
-#   x = Message.new.status = "on"
-#   Client.new.send_hash(x.cmd_hash)
-# end

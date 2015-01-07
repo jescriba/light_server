@@ -19,3 +19,9 @@
   "mode": "random",
   "rate": "1"
 }
+
+{
+  "status": "on",
+  "mode": "fill",
+  "color": hexvalue
+}
