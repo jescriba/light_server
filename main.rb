@@ -3,6 +3,8 @@ require 'json'
 require 'pry'
 require_relative 'lib/lights_server.rb'
 
+set :bind, '0.0.0.0'
+
 get '/' do
   erb :home
 end
@@ -13,7 +15,6 @@ end
 
 post '/request' do
   $lights_server ||= Lights::Server.new
-  binding.pry
   req = JSON.parse(request.body.read)
   data = req.to_json
   $lights_server.listen(data)

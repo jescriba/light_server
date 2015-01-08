@@ -24,7 +24,6 @@ module Lights
       raise TypeError unless color.is_a?(Color)
       @color = color
       @history.push([Time.now, color])
-      trim(@history)
       @history.shift(50) if history.size > 300
     end
   end
