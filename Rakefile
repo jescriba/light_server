@@ -1,3 +1,3 @@
 task :run do
-  sh "sudo ruby main.rb -o 0.0.0.0"
+  sh "rackup -s thin -o 0.0.0.0 -p 4567"
 end
