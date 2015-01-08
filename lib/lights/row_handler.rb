@@ -6,16 +6,16 @@ require_relative 'light.rb'
 module Lights
   class RowHandler
     include PiPiper
-    attr_reader :light_array, :command_history
+    attr_reader :lights_array, :command_history
    
     NUM_OF_LEDS = 32
     @@modes = [:default, :fill, :fluctuate]
     
     def initialize
-      @light_array = []
+      @lights_array = []
       @command_history = []
       NUM_OF_LEDS.times do |i|
-        @light_array.push(Light.new(status = false))
+        @lights_array.push(Light.new(status = false))
       end
       # Initialize quick light up for visual inspection
       setup_test()
@@ -46,26 +46,37 @@ module Lights
     ## Uses the light array configurations to construct the byte message
     # to send to spi device
     def led_message()
-      
+      msg = []
+      @lights_array.each do |light|
+        light.color.normalize
+        color = light.color
+        if light.status = false
+          msg.push([128, 128, 128]) # Off
+        else
+          msg.push([color.green, color.red, color.blue])
+        end
+      end
+      msg.flatten
+      msg = Array.new(3 * NUM_OF_LEDS, 128) if msg.size != 3 * NUM_OF_LEDS
+      msg.unshift(0, 0, 0)
     end
 
-    ## Methods for modes
-    #
-    #
+    ###########################
+    # Methods for Light Modes #
+    ###########################
     def default
       fill(Color.new(red: 140, green: 140, blue: 140))
     end
 
     def fill(color)
-      msg = Array.new(32, [color.green, color.red, color.blue])
-      msg.unshift(0, 0, 0)
-      msg.flatten
-      PiPiper::Spi.begin do
-        puts write(msg)
+      # Set all the light colors to the specified color
+      @lights_array.each do |light|
+        light.color = color
       end
-      ## PiPiper::Spi.begin do
-      #    puts write(led_message())
-      #  end
+      # Write to LED strip
+      PiPiper::Spi.begin do
+          puts write(led_message())
+      end
     end
 
     def fluctuate
