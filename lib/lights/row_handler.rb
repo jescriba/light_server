@@ -88,6 +88,20 @@ module Lights
       end
     end
 
+    def custom_static
+      @web_request["color"].each_with_index do |request_color, index|
+        red = request_color["red"] || 128
+        blue = request_color["blue"] || 128
+        green = request_color["green"] || 128
+        color = Color.new(red: red.to_i, blue: blue.to_i, green: green.to_i)
+        @lights_array[index].color = color
+      end
+      msg = led_message()
+      PiPiper::Spi.begin do
+        puts write(msg)
+      end
+    end
+
     def fluctuate
     end
 
