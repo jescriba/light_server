@@ -52,7 +52,7 @@ class ClientManager
       input = gets.chomp
       if input == "Y"
         File.open("favorites.txt", "w") do |fi|
-          fi.write(red.to_s + "," + blue.to_s + "," + green.to_s)
+          fi.puts(red.to_s + "," + blue.to_s + "," + green.to_s)
         end
       elsif input == "Q"
         abort("closing")
