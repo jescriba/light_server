@@ -23,15 +23,16 @@ class ClientManager
     menu_called
   end
 
-  def random
+  def random(rate = 1)
     loop do
+      check_kill_or_menu_command()
       red = rand(128) + 128
       blue = rand(128) + 128
       green = rand(128) + 128
       header = { 'Content-Type' => 'application/json' }
       body = { "status" => "on", "mode" => "fill", "color" => { "red" => red, "blue" => blue, "green" => green } }.to_json
       HTTParty.post("http://10.0.0.14:4567/request", { :body => body, :headers => header })
-      sleep(1)
+      sleep(rate)
     end
   end
 
@@ -80,8 +81,10 @@ class ClientManager
     puts "##########################"
     input = gets.chomp
     case input
-    when "1"
-      random()
+    when /1/
+      rate = 1
+      rate = rate.split("rate:")[1] if input.include?("rate:")
+      random(rate)
     when "2"
       explore()
     else 
