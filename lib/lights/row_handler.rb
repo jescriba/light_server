@@ -99,7 +99,6 @@ module Lights
         else
           color = Color.new(red: 128, blue: 128, green: 128)
         end
-        end
         light.color = color
       end
       msg = led_message()
