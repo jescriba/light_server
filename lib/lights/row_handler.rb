@@ -1,6 +1,7 @@
 ## Handles the SPI and Row Status
 #
 require 'pi_piper'
+require 'pry'
 require_relative 'light.rb'
 
 module Lights
@@ -9,7 +10,7 @@ module Lights
     attr_reader :lights_array, :command_history
    
     NUM_OF_LEDS = 32
-    @@modes = [:default, :fill, :fluctuate]
+    @@modes = [:default, :fill, :fluctuate, :custom_static]
     
     def initialize
       @lights_array = []
