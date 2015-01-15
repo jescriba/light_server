@@ -91,7 +91,7 @@ module Lights
 
     def custom_static
       @web_request["colors"].each do |light_index|
-        if request_color.to_i.between?(0, NUM_OF_LEDS)
+        if light_index.to_i.between?(0, NUM_OF_LEDS)
           red = light_index["red"] || 128
           blue = light_index["blue"] || 128
           green = light_index["green"] || 128
