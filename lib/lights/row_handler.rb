@@ -10,7 +10,7 @@ module Lights
     attr_reader :lights_array, :command_history
    
     NUM_OF_LEDS = 32
-    @@modes = [:default, :fill, :fluctuate, :custom_static]
+    @@modes = [:default, :fill, :fluctuate, :custom_static, :clear_lights]
     
     def initialize
       @lights_array = []
@@ -67,7 +67,7 @@ module Lights
     # Methods for Light Modes #
     ###########################
     def default
-      fill(Color.new(red: 140, green: 140, blue: 140))
+      fill(Color.new(red: 165, green: 133, blue: 155))
     end
 
     def fill(color = nil)
@@ -90,18 +90,16 @@ module Lights
     end
 
     def custom_static
-      @lights_array.each_with_index do |light, index|
-        request_color = @web_request["colors"][index]
-        if !request_color.nil?
-          red = request_color["color"]["red"] || 128
-          blue = request_color["color"]["blue"] || 128
-          green = request_color["color"]["green"] || 128
+      @web_request["colors"].each do |light_index|
+        if request_color.to_i.between?(0, NUM_OF_LEDS)
+          red = light_index["red"] || 128
+          blue = light_index["blue"] || 128
+          green = light_index["green"] || 128
           color = Color.new(red: red.to_i, blue: blue.to_i, green: green.to_i)
-        else
-          color = Color.new(red: 128, blue: 128, green: 128)
+          @lights_array[light_index].color = color
         end
-        light.color = color
       end
+      clear_lights()
       msg = led_message()
       PiPiper::Spi.begin do
         puts write(msg)
@@ -112,6 +110,16 @@ module Lights
     end
 
     def custom
+    end
+
+    def clear_lights
+      @lights_array.each do |light|
+        light.color = Color.new(red: 128, blue: 128, green: 128)
+      end
+      msg = led_message()
+      PiPiper::Spi.begin do
+        puts write(msg)
+      end
     end
 
   end
