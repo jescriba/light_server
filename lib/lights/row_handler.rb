@@ -90,13 +90,14 @@ module Lights
     end
 
     def custom_static
-      @web_request["colors"].each do |light_index|
+      @web_request["colors"].keys.each do |light_index|
+        request_color = @web_request["colors"][light_index]
         if light_index.to_i.between?(0, NUM_OF_LEDS)
-          red = light_index["red"] || 128
-          blue = light_index["blue"] || 128
-          green = light_index["green"] || 128
+          red = request_color["red"] || 128
+          blue = request_color["blue"] || 128
+          green = request_color["green"] || 128
           color = Color.new(red: red.to_i, blue: blue.to_i, green: green.to_i)
-          @lights_array[light_index].color = color
+          @lights_array[light_index.to_i].color = color
         end
       end
       clear_lights()
