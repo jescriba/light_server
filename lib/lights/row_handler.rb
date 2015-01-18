@@ -90,6 +90,7 @@ module Lights
     end
 
     def custom_static
+      clear_lights()
       @web_request["colors"].keys.each do |light_index|
         request_color = @web_request["colors"][light_index]
         if light_index.to_i.between?(0, NUM_OF_LEDS)
@@ -100,7 +101,6 @@ module Lights
           @lights_array[light_index.to_i].color = color
         end
       end
-      clear_lights()
       msg = led_message()
       PiPiper::Spi.begin do
         puts write(msg)
