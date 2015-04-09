@@ -1,6 +1,7 @@
 ## Handles the SPI and Row Status
 #
 require 'pi_piper'
+require 'pry'
 require_relative 'light.rb'
 
 module Lights
@@ -9,7 +10,7 @@ module Lights
     attr_reader :lights_array, :command_history
    
     NUM_OF_LEDS = 32
-    @@modes = [:default, :fill, :fluctuate]
+    @@modes = [:default, :fill, :fluctuate, :custom_static, :clear_lights]
     
     def initialize
       @lights_array = []
@@ -66,7 +67,7 @@ module Lights
     # Methods for Light Modes #
     ###########################
     def default
-      fill(Color.new(red: 140, green: 140, blue: 140))
+      fill(Color.new(red: 165, green: 133, blue: 155))
     end
 
     def fill(color = nil)
@@ -89,12 +90,16 @@ module Lights
     end
 
     def custom_static
-      @web_request["color"].each_with_index do |request_color, index|
-        red = request_color["red"] || 128
-        blue = request_color["blue"] || 128
-        green = request_color["green"] || 128
-        color = Color.new(red: red.to_i, blue: blue.to_i, green: green.to_i)
-        @lights_array[index].color = color
+      clear_lights()
+      @web_request["colors"].keys.each do |light_index|
+        request_color = @web_request["colors"][light_index]
+        if light_index.to_i.between?(0, NUM_OF_LEDS)
+          red = request_color["red"] || 128
+          blue = request_color["blue"] || 128
+          green = request_color["green"] || 128
+          color = Color.new(red: red.to_i, blue: blue.to_i, green: green.to_i)
+          @lights_array[light_index.to_i].color = color
+        end
       end
       msg = led_message()
       PiPiper::Spi.begin do
@@ -106,6 +111,16 @@ module Lights
     end
 
     def custom
+    end
+
+    def clear_lights
+      @lights_array.each do |light|
+        light.color = Color.new(red: 128, blue: 128, green: 128)
+      end
+      msg = led_message()
+      PiPiper::Spi.begin do
+        puts write(msg)
+      end
     end
 
   end
