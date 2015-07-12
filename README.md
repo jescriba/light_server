@@ -8,7 +8,8 @@ new json request format:
 ```
 {
     "setup": {
-        "mode": "custom"
+        "mode": "custom",
+        "clear": true
     },
     "colors": [
         {
