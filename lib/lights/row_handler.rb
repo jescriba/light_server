@@ -123,7 +123,7 @@ module Lights
       clear_lights() if @mode == "off"
       @clear = @setup["clear"] || @clear
       @colors = instructions["colors"] || @colors
-      @color = instruction["color"] || @color
+      @color = instructions["color"] || @color
     end
 
   end
