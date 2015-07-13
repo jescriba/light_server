@@ -73,7 +73,9 @@ module Lights
     def fill(color = nil)
       clear_lights() if @clear
       unless @color.nil?
-        color ||= Color.new(@color["red"], @color["blue"], @color["green"])
+        color ||= Color.new(red: @color["red"], 
+                            blue: @color["blue"], 
+                            green: @color["green"])
       end
       @lights_array.each do |light|
         light.color = color
@@ -91,7 +93,7 @@ module Lights
         red = raw_color["red"] || 128
         blue = raw_color["blue"] || 128
         green = raw_color["green"] || 128
-        color = Color.new()
+        color = Color.new(red: red, blue: blue, green: green)
         if i < NUM_OF_LEDS - 1
           @lights_array[i].color = color
         end
