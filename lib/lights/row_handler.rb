@@ -7,10 +7,10 @@ require_relative 'light.rb'
 module Lights
   class RowHandler
     include PiPiper, Colors
-    attr_reader :lights_array, :command_history
+    attr_reader :lights_array, :command_history, :setup, :mode, :clear
    
     NUM_OF_LEDS = 32
-    @@modes = [:default, :fill, :fluctuate, :custom_static, :clear_lights]
+    @@modes = [:default, :fill, :fluctuate, :custom, :clear_lights]
     
     def initialize
       @lights_array = []
@@ -24,10 +24,10 @@ module Lights
 
     def update(instructions)
       @web_request = instructions
+      parse_request(instructions)
       @command_history.push([Time.now, instructions])
       @command_history.shift(30) if @command_history.size > 300
-      mode = instructions["mode"]
-      mode = mode.downcase.to_sym if mode.is_a?(String)
+      @mode = @mode.downcase.to_sym if mode.is_a?(String)
       method(mode).call if @@modes.include?(mode)
     end
 
@@ -71,14 +71,8 @@ module Lights
     end
 
     def fill(color = nil)
-      if !@web_request.nil?
-        color = @web_request["color"] if @web_request
-        red = color["red"]
-        blue = color["blue"]
-        green= color["green"]
-        color = Color.new(red: red.to_i, green: green.to_i, blue: blue.to_i)
-      end
-      # Set all the light colors to the specified color
+      clear_lights() if @clear = true
+      color ||= Color.new(@color[:red], @color[:blue], @color[:green])
       @lights_array.each do |light|
         light.color = color
       end
@@ -89,16 +83,15 @@ module Lights
       end
     end
 
-    def custom_static
-      clear_lights()
-      @web_request["colors"].keys.each do |light_index|
-        request_color = @web_request["colors"][light_index]
-        if light_index.to_i.between?(0, NUM_OF_LEDS)
-          red = request_color["red"] || 128
-          blue = request_color["blue"] || 128
-          green = request_color["green"] || 128
-          color = Color.new(red: red.to_i, blue: blue.to_i, green: green.to_i)
-          @lights_array[light_index.to_i].color = color
+    def custom
+      clear_lights() if @clear = true
+      @colors.each_with_index do |raw_color, i|
+        red = raw_color[:red] || 128
+        blue = raw_color[:blue] || 128
+        green = raw_color[:green] || 128
+        color = Color.new()
+        if i < NUM_OF_LEDS - 1
+          @lights_array[i].color = color
         end
       end
       msg = led_message()
@@ -110,9 +103,6 @@ module Lights
     def fluctuate
     end
 
-    def custom
-    end
-
     def clear_lights
       @lights_array.each do |light|
         light.color = Color.new(red: 128, blue: 128, green: 128)
@@ -121,6 +111,17 @@ module Lights
       PiPiper::Spi.begin do
         puts write(msg)
       end
+    end
+
+    private
+
+    def parse_request(instructions)
+      @setup = instructions[:setup] || @setup
+      @mode = @setup[:mode] || @mode
+      clear_lights() if @mode = "off"
+      @clear = @setup[:clear] || @clear
+      @colors = instructions[:colors] || @colors
+      @color = instruction[:color] || @color
     end
 
   end
