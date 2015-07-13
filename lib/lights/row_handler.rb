@@ -71,7 +71,7 @@ module Lights
     end
 
     def fill(color = nil)
-      clear_lights() if @clear = true
+      clear_lights() if @clear
       color ||= Color.new(@color[:red], @color[:blue], @color[:green])
       @lights_array.each do |light|
         light.color = color
@@ -84,7 +84,7 @@ module Lights
     end
 
     def custom
-      clear_lights() if @clear = true
+      clear_lights() if @clear
       @colors.each_with_index do |raw_color, i|
         red = raw_color[:red] || 128
         blue = raw_color[:blue] || 128
@@ -118,7 +118,7 @@ module Lights
     def parse_request(instructions)
       @setup = instructions[:setup] || @setup
       @mode = @setup[:mode] || @mode
-      clear_lights() if @mode = "off"
+      clear_lights() if @mode == "off"
       @clear = @setup[:clear] || @clear
       @colors = instructions[:colors] || @colors
       @color = instruction[:color] || @color
