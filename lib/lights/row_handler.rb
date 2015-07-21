@@ -70,7 +70,10 @@ module Lights
       config[:colors] = @colors
       config[:color] = @color
       config[:setup] = @setup 
-      config[:lights] = @lights_array
+      config[:lights] = @lights_array.each do |light|
+        c = light.color
+        "red: #{c.red}, blue: #{c.blue}, green: #{c.green}"
+      end
       config.to_json
     end
 
