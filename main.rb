@@ -26,5 +26,5 @@ end
 
 get '/off' do
   $lights_server ||= Lights::Server.new
-  $lights_server.clear_lights()
+  $lights_server.clear()
 end

@@ -20,5 +20,13 @@ module Lights
     def update(instructions)
       @row_handler.update(instructions)
     end
+
+    def clear
+      @row_handler.clear_lights()
+    end
+
+    def configuration
+      @row_handler.configuration
+    end
   end
 end
