@@ -16,5 +16,9 @@ module Colors
         end
       end
     end
+
+    def self.off
+      Color.new(red: 128, green: 128, blue: 128)
+    end
   end
 end

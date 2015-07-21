@@ -7,12 +7,17 @@ require_relative 'light.rb'
 module Lights
   class RowHandler
     include PiPiper, Colors
-    attr_reader :lights_array, :command_history, :setup, :mode, :clear
+    attr_reader :lights_array, :command_history, :setup, :mode, :clear,
+      :animation_threads
    
     NUM_OF_LEDS = 32
-    @@modes = [:default, :fill, :fluctuate, :custom, :clear_lights]
+    START_TIME = 18
+    STOP_TIME = 24
+    @@modes = [:default, :fill, :fluctuate, :custom, :clear_lights, 
+    :round_trip]
     
     def initialize
+      @animation_threads = []
       @lights_array = []
       @command_history = []
       NUM_OF_LEDS.times do |i|
@@ -52,22 +57,87 @@ module Lights
       @lights_array.each do |light|
         light.color.normalize
         color = light.color
-        #if !light.status
-        #  msg.push([128, 128, 128]) # Off
-        #else
-          msg.push([color.green, color.red, color.blue])
-        #end
+        msg.push([color.green, color.red, color.blue])
       end
       msg.flatten!
       msg = Array.new(3 * NUM_OF_LEDS, 128) if msg.size != 3 * NUM_OF_LEDS
       msg.unshift(0, 0, 0)
     end
 
+    # Return json of the current configuration
+    def configuration
+      config = {}
+      config[:colors] = @colors
+      config[:color] = @color
+      config[:setup] = @setup 
+      config[:lights] = @lights_array
+      config.to_json
+    end
+
     ###########################
     # Methods for Light Modes #
     ###########################
     def default
-      fill(Color.new(red: 165, green: 133, blue: 155))
+      dt = Thread.new do
+        loop do
+          if Time.now.hour.between?(START_TIME, END_TIME)
+            fill(Color.new(red: 165, green: 133, blue: 155))
+          else
+            clear_lights()
+            sleep(5)
+          end
+        end
+      end
+      @animation_threads.push(dt)
+    end
+
+    # Go up and down the row with a color
+    def round_trip(color = nil, rate = 0.5, looped = true)
+      counter = 0
+      increasing = true
+      rt = Thread.new do 
+        loop do
+          break unless looped
+          clear_lights() if @clear
+          unless @color.nil?
+            color ||= Color.new(red: @color["red"], 
+                                blue: @color["blue"], 
+                                green: @color["green"])
+          end
+          @lights_array.each_with_index do |light, i|
+            if counter == i or counter == i - 1
+              light.color = color
+            else
+              light.color = Color.off
+            end
+          end
+          increasing ? counter += 2 : counter -= 2
+          if counter > NUM_OF_LIGHTS - 1 and increasing
+            counter = NUM_OF_LIGHTS - 1
+            increasing = false
+          end
+          if counter < 0 and !increasing
+            counter = 0
+            increasing = true
+          end
+          # Write to LED strip
+          msg = led_message()
+          PiPiper::Spi.begin do
+              puts write((msg))
+          end
+          sleep(rate)
+        end
+      end
+      @animation_threads.push(rt)
+    end
+
+    def single_trip
+    end
+
+    def incremental
+    end
+
+    def fluctuate
     end
 
     def fill(color = nil)
@@ -104,9 +174,6 @@ module Lights
       end
     end
 
-    def fluctuate
-    end
-
     def clear_lights
       @lights_array.each do |light|
         light.color = Color.new(red: 128, blue: 128, green: 128)
@@ -120,6 +187,9 @@ module Lights
     private
 
     def parse_request(instructions)
+      unless @animation_threads.empty?
+        @animation_threads.each { |t| t.kill }
+      end
       @setup = instructions["setup"] || @setup
       @mode = @setup["mode"] || @mode
       clear_lights() if @mode == "off"
