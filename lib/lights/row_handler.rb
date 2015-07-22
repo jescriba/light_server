@@ -1,6 +1,7 @@
 ## Handles the SPI and Row Status
 #
 require 'pi_piper'
+require 'timeout'
 require 'pry'
 require_relative 'light.rb'
 
@@ -11,7 +12,7 @@ module Lights
       :animation_threads
    
     NUM_OF_LEDS = 32
-    START_TIME = 18
+    START_TIME = 14
     STOP_TIME = 24
     @@modes = [:default, :fill, :fluctuate, :custom, :clear_lights, 
     :round_trip]
@@ -34,6 +35,7 @@ module Lights
       @command_history.shift(30) if @command_history.size > 300
       @mode = @mode.downcase.to_sym if mode.is_a?(String)
       method(mode).call if @@modes.include?(mode)
+      nil # I think sinatra doesn't like some of these return values
     end
 
     ## TODO: Record of what the current json 
@@ -84,7 +86,13 @@ module Lights
       dt = Thread.new do
         loop do
           if Time.now.hour.between?(START_TIME, END_TIME)
-            fill(Color.new(red: 165, green: 133, blue: 155))
+            # timeout for hacky polling
+            begin
+              Timeout::timeout(30) do
+                round_trip(Color.new(red: 165, green: 133, blue: 155))
+              end
+            rescue
+            end
           else
             clear_lights()
             sleep(5)
@@ -192,6 +200,7 @@ module Lights
     def parse_request(instructions)
       unless @animation_threads.empty?
         @animation_threads.each { |t| t.kill }
+        @animation_threads = []
       end
       @setup = instructions["setup"] || @setup
       @mode = @setup["mode"] || @mode
