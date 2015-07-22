@@ -16,7 +16,7 @@ post '/request' do
   req = JSON.parse(request.body.read)
   data = req.to_json
   $lights_server.listen(data)
-  ""
+  "done"
 end
 
 get '/configuration' do
@@ -28,4 +28,5 @@ end
 get '/off' do
   $lights_server ||= Lights::Server.new
   $lights_server.clear()
+  "off"
 end
