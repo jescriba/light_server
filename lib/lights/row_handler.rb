@@ -79,7 +79,7 @@ module Lights
     end
 
     def kill_animations
-      unless @animations_threads.empty?
+      unless @animation_threads.empty?
         @animation_threads.each { |t| t.kill }
         @animation_threads = []
       end
