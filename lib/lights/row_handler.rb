@@ -83,23 +83,25 @@ module Lights
     # Methods for Light Modes #
     ###########################
     def default
+      rt = nil
       dt = Thread.new do
         loop do
-          if Time.now.hour.between?(START_TIME, END_TIME)
-            # timeout for hacky polling
-            begin
-              Timeout::timeout(30) do
-                round_trip(Color.new(red: 165, green: 133, blue: 155))
-              end
-            rescue
+          if Time.now.hour.between?(START_TIME, STOP_TIME)
+            if rt.nil?
+              rt = round_trip(Color.new(red: 165, green: 133, blue: 155))
             end
           else
+            unless rt.nil?
+              rt.kill
+              rt = nil
+            end
             clear_lights()
             sleep(5)
           end
         end
       end
       @animation_threads.push(dt)
+      dt
     end
 
     # Go up and down the row with a color
@@ -140,6 +142,7 @@ module Lights
         end
       end
       @animation_threads.push(rt)
+      rt
     end
 
     def single_trip
