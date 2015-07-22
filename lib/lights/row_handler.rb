@@ -11,7 +11,7 @@ module Lights
     attr_reader :lights_array, :command_history, :setup, :mode, :clear,
       :animation_threads
    
-    NUM_OF_LEDS = 32
+    NUM_OF_LIGHTS = 32
     START_TIME = 14
     STOP_TIME = 24
     @@modes = [:default, :fill, :fluctuate, :custom, :clear_lights, 
@@ -21,7 +21,7 @@ module Lights
       @animation_threads = []
       @lights_array = []
       @command_history = []
-      NUM_OF_LEDS.times do |i|
+      NUM_OF_LIGHTS.times do |i|
         @lights_array.push(Light.new(status = false))
       end
       # Initialize quick light up for visual inspection
@@ -35,7 +35,6 @@ module Lights
       @command_history.shift(30) if @command_history.size > 300
       @mode = @mode.downcase.to_sym if mode.is_a?(String)
       method(mode).call if @@modes.include?(mode)
-      nil # I think sinatra doesn't like some of these return values
     end
 
     ## TODO: Record of what the current json 
@@ -62,7 +61,7 @@ module Lights
         msg.push([color.green, color.red, color.blue])
       end
       msg.flatten!
-      msg = Array.new(3 * NUM_OF_LEDS, 128) if msg.size != 3 * NUM_OF_LEDS
+      msg = Array.new(3 * NUM_OF_LIGHTS, 128) if msg.size != 3 * NUM_OF_LIGHTS
       msg.unshift(0, 0, 0)
     end
 
@@ -77,6 +76,13 @@ module Lights
         "red: #{c.red}, blue: #{c.blue}, green: #{c.green}"
       end
       config.to_json
+    end
+
+    def kill_animations
+      unless @animations_threads.empty?
+        @animation_threads.each { |t| t.kill }
+        @animation_threads = []
+      end
     end
 
     ###########################
@@ -178,7 +184,7 @@ module Lights
         blue = raw_color["blue"] || 128
         green = raw_color["green"] || 128
         color = Color.new(red: red, blue: blue, green: green)
-        if i < NUM_OF_LEDS - 1
+        if i < NUM_OF_LIGHTS - 1
           @lights_array[i].color = color
         end
       end

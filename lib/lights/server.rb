@@ -22,6 +22,7 @@ module Lights
     end
 
     def clear
+      @row_handler.kill_animations
       @row_handler.clear_lights()
     end
 
