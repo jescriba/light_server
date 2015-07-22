@@ -111,7 +111,7 @@ module Lights
     end
 
     # Go up and down the row with a color
-    def round_trip(color = nil, rate = 0.5, looped = true)
+    def round_trip(color = nil, rate = 0.1, looped = true)
       counter = 0
       increasing = true
       rt = Thread.new do 
@@ -142,7 +142,7 @@ module Lights
           # Write to LED strip
           msg = led_message()
           PiPiper::Spi.begin do
-              puts write((msg))
+              write((msg))
           end
           sleep(rate)
         end
@@ -173,7 +173,7 @@ module Lights
       # Write to LED strip
       msg = led_message()
       PiPiper::Spi.begin do
-          puts write((msg))
+          write((msg))
       end
     end
 
@@ -190,7 +190,7 @@ module Lights
       end
       msg = led_message()
       PiPiper::Spi.begin do
-        puts write(msg)
+        write(msg)
       end
     end
 
@@ -200,7 +200,7 @@ module Lights
       end
       msg = led_message()
       PiPiper::Spi.begin do
-        puts write(msg)
+        write(msg)
       end
     end
 
