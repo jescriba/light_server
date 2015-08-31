@@ -9,7 +9,7 @@ module Lights
   class RowHandler
     include PiPiper, Colors
     attr_reader :lights_array, :command_history, :setup, :mode, :clear,
-      :animation_threads
+      :animation_threads, :transitions
    
     NUM_OF_LIGHTS = 32
     START_TIME = 14
@@ -89,17 +89,17 @@ module Lights
     # Methods for Light Modes #
     ###########################
     def default
-      rt = nil
+      rrt = nil
       dt = Thread.new do
         loop do
           if Time.now.hour.between?(START_TIME, STOP_TIME)
-            if rt.nil?
-              rt = round_trip(Color.new(red: 165, green: 133, blue: 155))
+            if rrt.nil?
+              rrt = random_range({red: [132, 190], blue: [128, 145], green: [128, 158]}))
             end
           else
-            unless rt.nil?
-              rt.kill
-              rt = nil
+            unless rrt.nil?
+              rrt.kill
+              rrt = nil
             end
             clear_lights()
             sleep(5)
@@ -108,6 +108,31 @@ module Lights
       end
       @animation_threads.push(dt)
       dt
+    end
+
+    def random_range(color_ranges = nil, rate = 8, looped = true)
+      rrt = Thread.new do
+        loop do
+          break unless looped
+          clear_lights() if @clear
+          @lights_array.each_with_index do |light, i|
+            color = Color.new(
+              red: rand(color_ranges[:red][0] + color_ranges[:red][1],
+              blue: rand(color_ranges[:blue][0] + color_ranges[:blue][1],
+              green: rand(color_ranges[:green][0] + color_ranges[:green][1]
+            )
+            light.color = color
+          end
+          # Write to LED strip
+          msg = led_message()
+          PiPiper::Spi.begin do
+              write((msg))
+          end
+          sleep(rate)
+        end
+      end
+      @animation_threads.push(rrt)
+      rrt
     end
 
     # Go up and down the row with a color
@@ -131,7 +156,7 @@ module Lights
             end
           end
           increasing ? counter += 2 : counter -= 2
-          if counter > NUM_OF_LIGHTS - 1 and increasing
+          if counter > NUM_OF_LIGHTS - 2 and increasing
             counter = NUM_OF_LIGHTS - 1
             increasing = false
           end
@@ -214,9 +239,10 @@ module Lights
       @setup = instructions["setup"] || @setup
       @mode = @setup["mode"] || @mode
       clear_lights() if @mode == "off"
-      @clear = @setup["clear"] || @clear
-      @colors = instructions["colors"] || @colors
-      @color = instructions["color"] || @color
+      @clear = @setup["clear"] || false
+      @colors = instructions["colors"] || []
+      @color = instructions["color"] || nil
+      @transitions = instructions["transitions"] || nil 
     end
 
   end
