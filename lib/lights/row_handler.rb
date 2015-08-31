@@ -110,18 +110,22 @@ module Lights
       dt
     end
 
-    def random_range(color_ranges = nil, rate = 8, looped = true)
+    def random_range(color_ranges = nil, rate = 0.1, looped = true)
+      j = 0
       rrt = Thread.new do
         loop do
           break unless looped
           clear_lights() if @clear
+          j = 0 if j >= NUM_OF_LIGHTS
           @lights_array.each_with_index do |light, i|
-            color = Color.new(
-              red: rand(color_ranges[:red][0]..color_ranges[:red][1]),
-              blue: rand(color_ranges[:blue][0]..color_ranges[:blue][1]),
-              green: rand(color_ranges[:green][0]..color_ranges[:green][1])
-            )
-            light.color = color
+            if j == i
+              color = Color.new(
+                red: rand(color_ranges[:red][0]..color_ranges[:red][1]),
+                blue: rand(color_ranges[:blue][0]..color_ranges[:blue][1]),
+                green: rand(color_ranges[:green][0]..color_ranges[:green][1])
+              )
+              light.color = color
+            end
           end
           # Write to LED strip
           msg = led_message()
