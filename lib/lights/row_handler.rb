@@ -117,9 +117,9 @@ module Lights
           clear_lights() if @clear
           @lights_array.each_with_index do |light, i|
             color = Color.new(
-              red: rand(color_ranges[:red][0] + color_ranges[:red][1],
-              blue: rand(color_ranges[:blue][0] + color_ranges[:blue][1],
-              green: rand(color_ranges[:green][0] + color_ranges[:green][1]
+              red: rand(color_ranges[:red][0]..color_ranges[:red][1]),
+              blue: rand(color_ranges[:blue][0]..color_ranges[:blue][1]),
+              green: rand(color_ranges[:green][0]..color_ranges[:green][1])
             )
             light.color = color
           end
