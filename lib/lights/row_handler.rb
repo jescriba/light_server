@@ -94,7 +94,7 @@ module Lights
         loop do
           if Time.now.hour.between?(START_TIME, STOP_TIME)
             if rrt.nil?
-              rrt = random_range({red: [132, 190], blue: [128, 145], green: [128, 158]}))
+              rrt = random_range({red: [132, 190], blue: [128, 145], green: [128, 158]})
             end
           else
             unless rrt.nil?
