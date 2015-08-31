@@ -132,6 +132,7 @@ module Lights
           PiPiper::Spi.begin do
               write((msg))
           end
+          j += 1
           sleep(rate)
         end
       end
