@@ -1,6 +1,6 @@
 ## Handles the SPI and Row Status
 #
-require 'pi_piper'
+#require 'pi_piper'
 require 'timeout'
 require 'pry'
 require_relative 'light.rb'
@@ -111,17 +111,17 @@ module Lights
     end
 
     def random_range(color_ranges = nil, rate = nil, looped = true)
-      if color_ranges.nil? && @mode_parameters[:colors_ranges].nil?
+      if color_ranges.nil? && @mode_parameters["colors_ranges"].nil?
         return
       end
-      if color_ranges.nil? && !@mode_parameters[:color_ranges].nil?
-        tmp_ranges = @mode_parameters[:color_ranges]
+      if color_ranges.nil? && !@mode_parameters["color_ranges"].nil?
+        tmp_ranges = @mode_parameters["color_ranges"]
         color_ranges = {}
-        color_ranges[:red] = tmp_ranges[:red].map! { |c| c.to_i }
-        color_ranges[:blue] = tmp_ranges[:blue].map! { |c| c.to_i }
-        color_ranges[:green] = tmp_ranges[:green].map! { |c| c.to_i }
+        color_ranges[:red] = tmp_ranges["red"].map! { |c| c.to_i }
+        color_ranges[:blue] = tmp_ranges["blue"].map! { |c| c.to_i }
+        color_ranges[:green] = tmp_ranges["green"].map! { |c| c.to_i }
       end
-      rate = rate || @mode_parameters[:rate] || 0.1
+      rate = rate || @mode_parameters["rate"] || 0.1
       rate = rate.to_f # in case the json one is a string
       rrt = Thread.new do
         j = 0
