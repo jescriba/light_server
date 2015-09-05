@@ -9,13 +9,13 @@ module Lights
   class RowHandler
     include PiPiper, Colors
     attr_reader :lights_array, :command_history, :setup, :mode, :clear,
-      :animation_threads, :transitions
+      :animation_threads, :transitions, :mode_parameters
    
     NUM_OF_LIGHTS = 32
     START_TIME = 14
     STOP_TIME = 24
     @@modes = [:default, :fill, :fluctuate, :custom, :clear_lights, 
-    :round_trip]
+    :round_trip, :random_range]
     
     def initialize
       @animation_threads = []
@@ -110,9 +110,21 @@ module Lights
       dt
     end
 
-    def random_range(color_ranges = nil, rate = 0.1, looped = true)
-      j = 0
+    def random_range(color_ranges = nil, rate = nil, looped = true)
+      if color_ranges.nil? && @mode_parameters[:colors_ranges].nil?
+        return
+      end
+      if color_ranges.nil? && !@mode_parameters[:color_ranges].nil?
+        tmp_ranges = @mode_parameters[:color_ranges]
+        color_ranges = {}
+        color_ranges[:red] = tmp_ranges[:red].map! { |c| c.to_i }
+        color_ranges[:blue] = tmp_ranges[:blue].map! { |c| c.to_i }
+        color_ranges[:green] = tmp_ranges[:green].map! { |c| c.to_i }
+      end
+      rate = rate || @mode_parameters[:rate] || 0.1
+      rate = rate.to_f # in case the json one is a string
       rrt = Thread.new do
+        j = 0
         loop do
           break unless looped
           clear_lights() if @clear
@@ -248,6 +260,7 @@ module Lights
       @colors = instructions["colors"] || []
       @color = instructions["color"] || nil
       @transitions = instructions["transitions"] || nil 
+      @mode_parameters = instructions["mode_parameters"] || nil
     end
 
   end
