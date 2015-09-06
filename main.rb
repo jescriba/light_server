@@ -1,7 +1,7 @@
 require 'sinatra'
 require 'json'
 require 'pry'
-#require_relative 'lib/lights_server.rb'
+require_relative 'lib/lights_server.rb'
 
 get '/' do
   erb :home
@@ -31,14 +31,14 @@ get '/random_range' do
 end
 
 post '/random_range' do
-  data = { setup: { mode: "random_range" }, mode_parameters: { red: {}, blue: {}, green:{} } }
-  data[:mode_parameters][:red] = [params["red-min"].to_i, params["red-max"].to_i]
-  data[:mode_parameters][:blue] = [params["blue-min"].to_i, params["blue-max"].to_i]
-  data[:mode_parameters][:green] = [params["green-min"].to_i, params["green-max"].to_i]
+  data = { setup: { mode: "random_range" }, mode_parameters: { color_ranges: { red: {}, blue: {}, green:{} } } }
+  data[:mode_parameters][:color_ranges][:red] = [params["red-min"].to_i, params["red-max"].to_i]
+  data[:mode_parameters][:color_ranges][:blue] = [params["blue-min"].to_i, params["blue-max"].to_i]
+  data[:mode_parameters][:color_ranges][:green] = [params["green-min"].to_i, params["green-max"].to_i]
   data_json = data.to_json
   $lights_server ||= Lights::Server.new
   $lights_server.listen(data_json)
-  ''
+  erb :random_range
 end
 
 get '/off' do

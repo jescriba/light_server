@@ -1,6 +1,6 @@
 ## Handles the SPI and Row Status
 #
-#require 'pi_piper'
+require 'pi_piper'
 require 'timeout'
 require 'pry'
 require_relative 'light.rb'
@@ -111,7 +111,7 @@ module Lights
     end
 
     def random_range(color_ranges = nil, rate = nil, looped = true)
-      if color_ranges.nil? && @mode_parameters["colors_ranges"].nil?
+      if color_ranges.nil? && @mode_parameters["color_ranges"].nil?
         return
       end
       if color_ranges.nil? && !@mode_parameters["color_ranges"].nil?
