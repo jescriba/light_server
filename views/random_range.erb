@@ -1,0 +1,43 @@
+<% # code from http://www.w3schools.com/jquerymobile/tryit.asp?filename=tryjqmob_forms_slider_range  %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+</head>
+<body>
+
+<div data-role="page">
+  <div data-role="header">
+    <h1>Range Slider</h1>
+  </div>
+
+  <div data-role="main" class="ui-content">
+    <form method="post" action="#">
+      <div data-role="rangeslider">
+        <label for="red-min">Red:</label>
+        <input type="range" name="red-min" id="red-min" value="160" min="128" max="256">
+        <label for="red-max">Red:</label>
+        <input type="range" name="red-max" id="red-max" value="200" min="128" max="256">
+      </div>
+      <div data-role="rangeslider">
+        <label for="blue-min">Blue:</label>
+        <input type="range" name="blue-min" id="blue-min" value="160" min="128" max="256">
+        <label for="blue-max">Blue:</label>
+        <input type="range" name="blue-max" id="blue-max" value="200" min="128" max="256">
+      </div>
+      <div data-role="rangeslider">
+        <label for="green-min">Green:</label>
+        <input type="range" name="green-min" id="green-min" value="160" min="128" max="256">
+        <label for="green-max">Green:</label>
+        <input type="range" name="green-max" id="green-max" value="200" min="128" max="256">
+      </div>
+        <input type="submit" data-inline="true" value="Submit">
+      </form>
+  </div>
+</div> 
+
+</body>
+</html>
