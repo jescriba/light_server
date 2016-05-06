@@ -1,4 +1,6 @@
 # light_server
+TLDR:
+Sinatra server connected to raspberry pi w/ LED strip. Listens to json requests.
 
 new json request format:
 
